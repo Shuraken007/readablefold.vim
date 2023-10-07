@@ -16,10 +16,8 @@ function! readablefold#foldtext() abort
         \ : substitute(getline(lnum), '\t', tabstop, 'g')
   let w = winwidth(0) - &foldcolumn - 3 - number_width - signcolumn_width
   let line_number = 1 + v:foldend - v:foldstart
-  let s = printf("| %3d |
-  
-  ", line_number)
-  let f = repeat(">", v:foldlevel)
+  let s = printf("| %3d | ", line_number)
+  let f = printf("%d/%d", v:foldlevel, s:get_max_depth(v:foldstart, v:foldend))
 
   let e = s:foldspace[:w - strwidth(line . s . f)]
   return join([line, e, f, s], ' ')
@@ -27,6 +25,16 @@ endf
 
 
 " Private --------------------------------------------------------------------
+function! s:get_max_depth(from, to) abort
+  let i = a:from
+  let m = foldlevel(i)
+  while (i <= a:to)
+    let m = max([m, foldlevel(i)])
+    let i += 1
+  endwhile
+  return m
+endfunction
+
 function! s:get_tabstop() abort
   let b:readablefold_tabstop = repeat(' ', &tabstop)
   return b:readablefold_tabstop
